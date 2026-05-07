@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🎙️ Paragraph Speech Reader</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Arial; 
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); 
+            color: white; 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 20px;
+        }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-size: 3.5em; margin-bottom: 15px; text-shadow: 0 0 40px rgba(255,255,255,0.7); }
+        .header p { font-size: 1.5em; opacity: 0.9; max-width: 600px; }
+        .controls { margin-bottom: 40px; }
+        button { 
+            background: rgba(255,255,255,0.15); 
+            backdrop-filter: blur(20px); 
+            border: 2px solid rgba(255,255,255,0.4); 
+            color: white; 
+            padding: 18px 36px; 
+            font-size: 18px; 
+            border-radius: 50px; 
+            cursor: pointer; 
+            margin: 0 12px; 
+            transition: all 0.3s; 
+            font-weight: bold;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        button:hover:not(:disabled) { 
+            background: rgba(255,255,255,0.25); 
+            transform: translateY(-3px); 
+            box-shadow: 0 15px 45px rgba(0,0,0,0.5);
+        }
+        button:disabled { opacity: 0.4; cursor: not-allowed; }
+        #status { 
+            font-size: 32px; font-weight: bold; 
+            margin: 25px 0; 
+            padding: 25px 50px; 
+            background: rgba(0,0,0,0.5); 
+            border-radius: 25px; 
+            min-height: 80px; 
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        #paragraph { 
+            font-size: 3.8em; font-weight: 700; 
+            margin: 40px 0; 
+            padding: 60px; 
+            background: rgba(0,0,0,0.6); 
+            border-radius: 35px; 
+            max-width: 95vw;
+            line-height: 1.2;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.6);
+            text-align: center;
+        }
+        .word { 
+            padding: 16px 28px; 
+            margin: 8px 4px; 
+            border-radius: 22px; 
+            display: inline-block; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            cursor: pointer; 
+            border: 4px solid transparent;
+            min-width: 65px;
+            font-weight: bold;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+        .current { 
+            background: linear-gradient(45deg, #FFD700, #FFA500) !important; 
+            color: black !important; 
+            border-color: #FF8C00 !important;
+            transform: scale(1.3) !important;
+            box-shadow: 0 0 60px #FFD700 !important;
+            animation: glow 0.7s infinite alternate;
+        }
+        .speaking { 
+            background: linear-gradient(45deg, #00FF88, #32CD32) !important; 
+            color: black !important; 
+            border-color: #00CC66 !important;
+            transform: scale(1.15) !important;
+            box-shadow: 0 0 40px #00FF88 !important;
+        }
+        .correct { 
+            background: linear-gradient(45deg, #00FF88, #32CD32) !important; 
+            color: black !important; 
+            border-color: #00CC66 !important;
+            transform: scale(1.1) !important;
+            box-shadow: 0 0 30px #00FF88 !important;
+        }
+        .wrong { 
+            background: linear-gradient(45deg, #FF4444, #CC0000) !important; 
+            color: white !important; 
+            border-color: #990000 !important;
+            animation: shake 0.7s ease-in-out;
+            transform: scale(1.05) !important;
+        }
+        .progress { 
+            font-size: 2.8em; 
+            margin: 40px 0; 
+            padding: 30px 60px; 
+            background: rgba(0,0,0,0.5); 
+            border-radius: 25px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+        }
+        @keyframes glow { 0% { box-shadow: 0 0 60px #FFD700; } 100% { box-shadow: 0 0 80px #FFD700; } }
+        @keyframes shake { 0%, 100% { transform: translateX(0) scale(1.05); } 25% { transform: translateX(-12px) scale(1.05); } 75% { transform: translateX(12px) scale(1.05); } }
+        #heard { font-size: 1.7em; margin-top: 30px; padding: 25px 40px; background: rgba(255,255,255,0.12); border-radius: 20px; border-left: 6px solid #FFD700; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📖 Paragraph Reader</h1>
+        <p>Read the paragraph → Live correction → Stuck on wrong words</p>
+    </div>
+
+    <div class="controls">
+        <button id="startBtn" onclick="startReading()">🎤 Start Reading</button>
+        <button id="stopBtn" onclick="stopReading()" disabled>⏹️ Stop</button>
+        <button onclick="newParagraph()">📄 New Paragraph</button>
+    </div>
+
+    <div id="status">Click 🎤 → Read the highlighted word!</div>
+    <div id="paragraph"></div>
+    
+    <div class="progress">
+        Words: <span id="scoreNum">0</span> / <span id="totalWords">0</span>
+    </div>
+    
+    <div id="heard"></div>
+
+    <script>
+        let recognition;
+        let paragraphWords = [];
+        let currentIndex = 0;
+        let score = 0;
+        let isReading = false;
+        let stuckOnWrong = false;
+        let isSpeakingFeedback = false;
+
+        // FULL PARAGRAPHS (Real content!)
+        const paragraphs = [
+            "welcome to the advanced reading trainer this application helps you improve pronunciation and reading skills in real time with instant feedback",
+            "practice makes perfect read slowly and clearly focus on each word the system will guide you through difficult pronunciation automatically",
+            "speech recognition technology combined with machine learning provides accurate real time correction helping you become confident speaker quickly",
+            "reading aloud improves fluency comprehension and confidence our smart coach listens corrects and progresses you through challenging material smoothly"
+        ];
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+
+        recognition.onresult = (event) => {
+            let interim = '';
+            let final = '';
+            
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                if (event.results[i].isFinal) {
+                    final += event.results[i][0].transcript.toLowerCase();
+                } else {
+                    interim += event.results[i][0].transcript.toLowerCase();
+                }
+            }
+            
+            if (interim) {
+                liveHighlight(interim);
+                document.getElementById('heard').innerText = `Hearing: "${interim}"`;
+            }
+            
+            if (final) {
+                checkReading(final.trim());
+            }
+        };
+
+        function startReading() {
+            currentIndex = 0;
+            score = 0;
+            stuckOnWrong = false;
+            paragraphWords = paragraphs[Math.floor(Math.random() * paragraphs.length)].split(' ');
+            showParagraph();
+            
+            recognition.start();
+            isReading = true;
+            
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+            document.getElementById('status').innerHTML = '📖 Start reading from the highlighted word!';
+            document.getElementById('totalWords').innerText = paragraphWords.length;
+        }
+
+        function stopReading() {
+            recognition.stop();
+            isReading = false;
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            document.getElementById('status').innerHTML = 'Stopped';
+        }
+
+        function newParagraph() {
+            stopReading();
+            setTimeout(startReading, 400);
+        }
+
+        function showParagraph() {
+            document.getElementById('paragraph').innerHTML = 
+                paragraphWords.map((word, i) => 
+                    `<span class="word" data-index="${i}">${word}</span>`
+                ).join(' ');
+            highlightCurrent();
+        }
+
+        function highlightCurrent() {
+            document.querySelectorAll('.word').forEach((el, i) => {
+                el.classList.remove('current', 'speaking');
+                if (i === currentIndex) {
+                    el.classList.remove('wrong');
+                    el.classList.add('current');
+                }
+            });
+        }
+
+        function liveHighlight(said) {
+            const currentWordEl = document.querySelector(`[data-index="${currentIndex}"]`);
+            if (said.includes(paragraphWords[currentIndex].toLowerCase())) {
+                currentWordEl.classList.add('speaking');
+            } else {
+                currentWordEl.classList.remove('speaking');
+            }
+        }
+
+        function checkReading(said) {
+            let processedAny = false;
+            let currentSaid = said.toLowerCase();
+
+            while (currentIndex < paragraphWords.length) {
+                const expected = paragraphWords[currentIndex].toLowerCase();
+                const wordEl = document.querySelector(`[data-index="${currentIndex}"]`);
+                
+                // Check if current word is in the speech segment
+                if (currentSaid.includes(expected)) {
+                    wordEl.classList.remove('speaking', 'wrong');
+                    wordEl.classList.add('correct');
+                    score++;
+                    updateScore();
+                    
+                    // Slice speech to find next words
+                    const wordPos = currentSaid.indexOf(expected);
+                    currentSaid = currentSaid.substring(wordPos + expected.length).trim();
+                    
+                    currentIndex++;
+                    stuckOnWrong = false;
+                    processedAny = true;
+                    
+                    if (currentIndex >= paragraphWords.length) {
+                        setTimeout(() => {
+                            document.getElementById('status').innerHTML = `🎉 FINISHED! ${score}/${paragraphWords.length} words`;
+                            speakFeedback('Reading complete! Excellent!');
+                            setTimeout(stopReading, 3000);
+                        }, 400);
+                        return;
+                    }
+                } else {
+                    break;
+                }
+            }
+
+            if (processedAny) {
+                highlightCurrent();
+                document.getElementById('status').innerHTML = '✅ Keep reading! Speed is good!';
+            } else {
+                const wordEl = document.querySelector(`[data-index="${currentIndex}"]`);
+                wordEl.classList.remove('speaking');
+                wordEl.classList.add('wrong');
+                stuckOnWrong = true;
+                document.getElementById('status').innerHTML = `❌ Read: "${paragraphWords[currentIndex]}" correctly!`;
+                document.getElementById('heard').innerText = `Say clearly: "${paragraphWords[currentIndex]}"`;
+                speakFeedback(`Read "${paragraphWords[currentIndex]}" correctly`);
+            }
+        }
+
+        function updateScore() {
+            document.getElementById('scoreNum').innerText = score;
+        }
+
+        function speakFeedback(text) {
+            if (isSpeakingFeedback) return;
+            
+            isSpeakingFeedback = true;
+            try { recognition.stop(); } catch(e) {}
+            
+            speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.85;
+            
+            utterance.onend = () => {
+                isSpeakingFeedback = false;
+                if (isReading) {
+                    try { recognition.start(); } catch(e) {}
+                }
+            };
+            
+            speechSynthesis.speak(utterance);
+        }
+
+        recognition.onend = () => {
+            if (isReading && !isSpeakingFeedback) {
+                setTimeout(() => {
+                    try { recognition.start(); } catch(e) {}
+                }, 150);
+            }
+        };
+    </script>
+</body>
+</html>
