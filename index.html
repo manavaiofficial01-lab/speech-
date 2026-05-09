@@ -1,321 +1,779 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar" dir="rtl">
+
 <head>
-    <title>🎙️ Paragraph Speech Reader</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0f172a">
+    <title>Master Arabic • AI Pronunciation Coach</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Outfit:wght@300;400;600;700&family=Readex+Pro:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', Arial; 
-            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); 
-            color: white; 
-            min-height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            padding: 20px;
+        :root {
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.4);
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.6);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
         }
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { font-size: 3.5em; margin-bottom: 15px; text-shadow: 0 0 40px rgba(255,255,255,0.7); }
-        .header p { font-size: 1.5em; opacity: 0.9; max-width: 600px; }
-        .controls { margin-bottom: 40px; }
-        button { 
-            background: rgba(255,255,255,0.15); 
-            backdrop-filter: blur(20px); 
-            border: 2px solid rgba(255,255,255,0.4); 
-            color: white; 
-            padding: 18px 36px; 
-            font-size: 18px; 
-            border-radius: 50px; 
-            cursor: pointer; 
-            margin: 0 12px; 
-            transition: all 0.3s; 
-            font-weight: bold;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
-        button:hover:not(:disabled) { 
-            background: rgba(255,255,255,0.25); 
-            transform: translateY(-3px); 
-            box-shadow: 0 15px 45px rgba(0,0,0,0.5);
+
+        body {
+            font-family: 'Outfit', 'Readex Pro', sans-serif;
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.08) 0%, transparent 40%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            line-height: 1.6;
         }
-        button:disabled { opacity: 0.4; cursor: not-allowed; }
-        #status { 
-            font-size: 32px; font-weight: bold; 
-            margin: 25px 0; 
-            padding: 25px 50px; 
-            background: rgba(0,0,0,0.5); 
-            border-radius: 25px; 
-            min-height: 80px; 
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
         }
-        #paragraph { 
-            font-size: 3.8em; font-weight: 700; 
-            margin: 40px 0; 
-            padding: 60px; 
-            background: rgba(0,0,0,0.6); 
-            border-radius: 35px; 
-            max-width: 95vw;
-            line-height: 1.2;
-            box-shadow: 0 25px 70px rgba(0,0,0,0.6);
+
+        header {
             text-align: center;
+            padding-bottom: 0.5rem;
         }
-        .word { 
-            padding: 16px 28px; 
-            margin: 8px 4px; 
-            border-radius: 22px; 
-            display: inline-block; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            cursor: pointer; 
-            border: 4px solid transparent;
-            min-width: 65px;
-            font-weight: bold;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+
+        h1 {
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            font-weight: 700;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.3rem;
         }
-        .current { 
-            background: linear-gradient(45deg, #FFD700, #FFA500) !important; 
-            color: black !important; 
-            border-color: #FF8C00 !important;
-            transform: scale(1.3) !important;
-            box-shadow: 0 0 60px #FFD700 !important;
-            animation: glow 0.7s infinite alternate;
+
+        .subtitle {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-weight: 600;
+            opacity: 0.7;
         }
-        .speaking { 
-            background: linear-gradient(45deg, #00FF88, #32CD32) !important; 
-            color: black !important; 
-            border-color: #00CC66 !important;
-            transform: scale(1.15) !important;
-            box-shadow: 0 0 40px #00FF88 !important;
+
+        .nav-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
         }
-        .correct { 
-            background: linear-gradient(45deg, #00FF88, #32CD32) !important; 
-            color: black !important; 
-            border-color: #00CC66 !important;
-            transform: scale(1.1) !important;
-            box-shadow: 0 0 30px #00FF88 !important;
+
+        .lang-btn {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+            padding: 0.6rem 1.4rem;
+            border-radius: 99px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            backdrop-filter: blur(10px);
         }
-        .wrong { 
-            background: linear-gradient(45deg, #FF4444, #CC0000) !important; 
-            color: white !important; 
-            border-color: #990000 !important;
-            animation: shake 0.7s ease-in-out;
-            transform: scale(1.05) !important;
+
+        .lang-btn.active {
+            background: var(--primary);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 20px var(--primary-glow);
         }
-        .progress { 
-            font-size: 2.8em; 
-            margin: 40px 0; 
-            padding: 30px 60px; 
-            background: rgba(0,0,0,0.5); 
-            border-radius: 25px;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+
+        .trainer-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 2.5rem;
+            padding: 2.5rem;
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            position: relative;
+            overflow: hidden;
         }
-        @keyframes glow { 0% { box-shadow: 0 0 60px #FFD700; } 100% { box-shadow: 0 0 80px #FFD700; } }
-        @keyframes shake { 0%, 100% { transform: translateX(0) scale(1.05); } 25% { transform: translateX(-12px) scale(1.05); } 75% { transform: translateX(12px) scale(1.05); } }
-        #heard { font-size: 1.7em; margin-top: 30px; padding: 25px 40px; background: rgba(255,255,255,0.12); border-radius: 20px; border-left: 6px solid #FFD700; }
+
+        .trainer-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        }
+
+        /* Tarteel-style Word Layout */
+        .sentence-display {
+            width: 100%;
+            text-align: center;
+            min-height: 200px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem 2rem;
+            padding: 2.5rem;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 2rem;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .word-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.6rem;
+            transition: all 0.4s ease;
+        }
+
+        .word-main {
+            font-family: 'Amiri', serif;
+            font-size: clamp(2.4rem, 7vw, 4.5rem);
+            color: var(--text-main);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        [dir="ltr"] .word-main {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+        }
+
+        .syllable-container {
+            display: flex;
+            gap: 0.4rem;
+            direction: ltr;
+        }
+
+        .syllable-chip {
+            font-size: 0.85rem;
+            padding: 0.2rem 0.7rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 99px;
+            color: var(--text-dim);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            letter-spacing: 0.5px;
+        }
+
+        /* Interaction States */
+        .word-group.active .word-main {
+            color: var(--accent);
+            transform: scale(1.1);
+            text-shadow: 0 0 25px rgba(245, 158, 11, 0.4);
+        }
+
+        .word-group.active .syllable-chip {
+            color: var(--accent);
+            border-color: var(--accent);
+            background: rgba(245, 158, 11, 0.08);
+            animation: pulse-border 2s infinite;
+        }
+
+        @keyframes pulse-border {
+
+            0%,
+            100% {
+                border-color: rgba(245, 158, 11, 0.4);
+                box-shadow: 0 0 5px rgba(245, 158, 11, 0.1);
+            }
+
+            50% {
+                border-color: rgba(245, 158, 11, 1);
+                box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+            }
+        }
+
+        .word-group.correct .word-main {
+            color: var(--secondary);
+            text-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .word-group.correct .syllable-chip {
+            color: var(--secondary);
+            border-color: var(--secondary);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .word-group.wrong .word-main {
+            color: var(--danger);
+            animation: shake 0.4s cubic-bezier(.36, .07, .19, .97) both;
+        }
+
+        @keyframes shake {
+
+            10%,
+            90% {
+                transform: translate3d(-1px, 0, 0);
+            }
+
+            20%,
+            80% {
+                transform: translate3d(2px, 0, 0);
+            }
+
+            30%,
+            50%,
+            70% {
+                transform: translate3d(-4px, 0, 0);
+            }
+
+            40%,
+            60% {
+                transform: translate3d(4px, 0, 0);
+            }
+        }
+
+        .feedback-box {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 1.8rem;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .status-text {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.4rem;
+        }
+
+        .action-controls {
+            display: flex;
+            gap: 1.8rem;
+            align-items: center;
+        }
+
+        .btn-circle {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: var(--card-bg);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-record {
+            width: 85px;
+            height: 85px;
+            background: var(--primary);
+            font-size: 2.2rem;
+            box-shadow: 0 10px 30px var(--primary-glow);
+        }
+
+        .btn-record.recording {
+            background: var(--danger);
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.4);
+            animation: pulse-red 1.5s infinite;
+        }
+
+        @keyframes pulse-red {
+            0% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 20px rgba(239, 68, 68, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+            margin-top: 1.5rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), #34d399);
+            width: 0%;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Desktop specific tweaks */
+        @media (min-width: 1024px) {
+            .trainer-card {
+                padding: 4rem;
+            }
+
+            .btn-circle:hover {
+                transform: translateY(-5px) scale(1.05);
+                background: rgba(255, 255, 255, 0.1);
+            }
+        }
     </style>
 </head>
+
 <body>
-    <div class="header">
-        <h1>📖 Paragraph Reader</h1>
-        <p>Read the paragraph → Live correction → Stuck on wrong words</p>
-    </div>
+    <div class="container">
+        <header>
+            <h1>Pronunciation Coach</h1>
+            <p class="subtitle">Real-time AI Guidance</p>
+        </header>
 
-    <div class="controls">
-        <button id="startBtn" onclick="startReading()">🎤 Start Reading</button>
-        <button id="stopBtn" onclick="stopReading()" disabled>⏹️ Stop</button>
-        <button onclick="newParagraph()">📄 New Paragraph</button>
-    </div>
+        <nav class="nav-controls" dir="ltr">
+            <button class="lang-btn active" id="arBtn" onclick="app.setLanguage('ar')">
+                <span>🇸🇦</span> Arabic
+            </button>
+            <button class="lang-btn" id="enBtn" onclick="app.setLanguage('en')">
+                <span>🇺🇸</span> English
+            </button>
+        </nav>
 
-    <div id="status">Click 🎤 → Read the highlighted word!</div>
-    <div id="paragraph"></div>
-    
-    <div class="progress">
-        Words: <span id="scoreNum">0</span> / <span id="totalWords">0</span>
+        <main class="trainer-card">
+            <div class="sentence-display" id="sentenceDisplay"></div>
+
+            <div class="feedback-box">
+                <div class="status-text" id="statusText">Ready to start?</div>
+                <div id="correctionDetail" style="color: var(--text-dim); font-size: 0.95rem;">Tap the mic and speak
+                    naturally</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="action-controls" dir="ltr">
+                <button class="btn-circle" onclick="app.hearCurrentWord()">🔊</button>
+                <button class="btn-circle btn-record" id="recordBtn" onclick="app.toggleRecording()">🎤</button>
+                <button class="btn-circle" onclick="app.nextSentence()">⏭️</button>
+            </div>
+        </main>
     </div>
-    
-    <div id="heard"></div>
 
     <script>
-        let recognition;
-        let paragraphWords = [];
-        let currentIndex = 0;
-        let score = 0;
-        let isReading = false;
-        let stuckOnWrong = false;
-        let isSpeakingFeedback = false;
+        /**
+         * AI Pronunciation Coach - Tarteel-style Live Engine
+         */
+        const app = {
+            currentLang: 'ar',
+            isRecording: false,
+            isSpeaking: false,
+            currentSentenceIndex: 0,
+            activeWordIndex: 0,
+            activeSyllableIndex: 0,
+            lastResultIndex: 0, // Critical for incremental processing
+            sentences: [],
+            currentWords: [],
+            recognition: null,
+            voices: [],
+            fallbackAudio: null,
+            isLearningMode: true, // Slower TTS and more feedback
 
-        // FULL PARAGRAPHS (Real content!)
-        const paragraphs = [
-            "welcome to the advanced reading trainer this application helps you improve pronunciation and reading skills in real time with instant feedback",
-            "practice makes perfect read slowly and clearly focus on each word the system will guide you through difficult pronunciation automatically",
-            "speech recognition technology combined with machine learning provides accurate real time correction helping you become confident speaker quickly",
-            "reading aloud improves fluency comprehension and confidence our smart coach listens corrects and progresses you through challenging material smoothly"
-        ];
+            arabicData: [
+                { text: "مَرْحَبًا", syllables: [["mar", "ha", "ba"]] },
+                { text: "سَلَامٌ", syllables: [["sa", "laam"]] },
+                { text: "نَعَمْ", syllables: [["na", "am"]] },
+                { text: "لَا", syllables: [["laa"]] },
+                { text: "مَاءٌ", syllables: [["maa"]] },
+                { text: "بَيْتٌ", syllables: [["bayt"]] },
+                { text: "قَمَرٌ", syllables: [["qa", "mar"]] },
+                { text: "شَمْسٌ", syllables: [["shams"]] },
+                { text: "كِتَابٌ", syllables: [["ki", "taab"]] },
+                { text: "بَابٌ", syllables: [["baab"]] }
+            ],
 
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        recognition.lang = 'en-US';
-
-        recognition.onresult = (event) => {
-            let interim = '';
-            let final = '';
-            
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                if (event.results[i].isFinal) {
-                    final += event.results[i][0].transcript.toLowerCase();
-                } else {
-                    interim += event.results[i][0].transcript.toLowerCase();
+            englishData: [
+                { 
+                    text: "The baby is playing happily", 
+                    syllables: [["The"], ["ba", "by"], ["is"], ["play", "ing"], ["hap", "pi", "ly"]] 
+                },
+                { 
+                    text: "My brother likes football", 
+                    syllables: [["My"], ["bro", "ther"], ["likes"], ["foot", "ball"]] 
+                },
+                { 
+                    text: "She cooks delicious food", 
+                    syllables: [["She"], ["cooks"], ["de", "li", "cious"], ["food"]] 
+                },
+                { 
+                    text: "The birds are flying high", 
+                    syllables: [["The"], ["birds"], ["are"], ["fly", "ing"], ["high"]] 
+                },
+                { 
+                    text: "We are learning together", 
+                    syllables: [["We"], ["are"], ["learn", "ing"], ["to", "ge", "ther"]] 
+                },
+                { 
+                    text: "The doctor helps people", 
+                    syllables: [["The"], ["doc", "tor"], ["helps"], ["peo", "ple"]] 
+                },
+                { 
+                    text: "I wake up early every day", 
+                    syllables: [["I"], ["wake"], ["up"], ["ear", "ly"], ["ev", "ery"], ["day"]] 
+                },
+                { 
+                    text: "The students write carefully", 
+                    syllables: [["The"], ["stu", "dents"], ["write"], ["care", "ful", "ly"]] 
+                },
+                { 
+                    text: "My mother makes tea", 
+                    syllables: [["My"], ["mo", "ther"], ["makes"], ["tea"]] 
+                },
+                { 
+                    text: "The bus arrives on time", 
+                    syllables: [["The"], ["bus"], ["ar", "rives"], ["on"], ["time"]] 
                 }
-            }
-            
-            if (interim) {
-                liveHighlight(interim);
-                document.getElementById('heard').innerText = `Hearing: "${interim}"`;
-            }
-            
-            if (final) {
-                checkReading(final.trim());
-            }
-        };
+            ],
 
-        function startReading() {
-            currentIndex = 0;
-            score = 0;
-            stuckOnWrong = false;
-            paragraphWords = paragraphs[Math.floor(Math.random() * paragraphs.length)].split(' ');
-            showParagraph();
-            
-            recognition.start();
-            isReading = true;
-            
-            document.getElementById('startBtn').disabled = true;
-            document.getElementById('stopBtn').disabled = false;
-            document.getElementById('status').innerHTML = '📖 Start reading from the highlighted word!';
-            document.getElementById('totalWords').innerText = paragraphWords.length;
-        }
+            init() {
+                this.setupRecognition();
+                this.loadVoices();
+                this.setLanguage('ar');
 
-        function stopReading() {
-            recognition.stop();
-            isReading = false;
-            document.getElementById('startBtn').disabled = false;
-            document.getElementById('stopBtn').disabled = true;
-            document.getElementById('status').innerHTML = 'Stopped';
-        }
-
-        function newParagraph() {
-            stopReading();
-            setTimeout(startReading, 400);
-        }
-
-        function showParagraph() {
-            document.getElementById('paragraph').innerHTML = 
-                paragraphWords.map((word, i) => 
-                    `<span class="word" data-index="${i}">${word}</span>`
-                ).join(' ');
-            highlightCurrent();
-        }
-
-        function highlightCurrent() {
-            document.querySelectorAll('.word').forEach((el, i) => {
-                el.classList.remove('current', 'speaking');
-                if (i === currentIndex) {
-                    el.classList.remove('wrong');
-                    el.classList.add('current');
-                }
-            });
-        }
-
-        function liveHighlight(said) {
-            const currentWordEl = document.querySelector(`[data-index="${currentIndex}"]`);
-            if (said.includes(paragraphWords[currentIndex].toLowerCase())) {
-                currentWordEl.classList.add('speaking');
-            } else {
-                currentWordEl.classList.remove('speaking');
-            }
-        }
-
-        function checkReading(said) {
-            let processedAny = false;
-            let currentSaid = said.toLowerCase();
-
-            while (currentIndex < paragraphWords.length) {
-                const expected = paragraphWords[currentIndex].toLowerCase();
-                const wordEl = document.querySelector(`[data-index="${currentIndex}"]`);
-                
-                // Check if current word is in the speech segment
-                if (currentSaid.includes(expected)) {
-                    wordEl.classList.remove('speaking', 'wrong');
-                    wordEl.classList.add('correct');
-                    score++;
-                    updateScore();
-                    
-                    // Slice speech to find next words
-                    const wordPos = currentSaid.indexOf(expected);
-                    currentSaid = currentSaid.substring(wordPos + expected.length).trim();
-                    
-                    currentIndex++;
-                    stuckOnWrong = false;
-                    processedAny = true;
-                    
-                    if (currentIndex >= paragraphWords.length) {
-                        setTimeout(() => {
-                            document.getElementById('status').innerHTML = `🎉 FINISHED! ${score}/${paragraphWords.length} words`;
-                            speakFeedback('Reading complete! Excellent!');
-                            setTimeout(stopReading, 3000);
-                        }, 400);
-                        return;
+                // Mic Heartbeat
+                setInterval(() => {
+                    if (this.isRecording && this.recognition) {
+                        try { this.recognition.start(); } catch (e) { }
                     }
+                }, 2000);
+            },
+
+            setupRecognition() {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!SpeechRecognition) return;
+
+                this.recognition = new SpeechRecognition();
+                this.recognition.continuous = true;
+                this.recognition.interimResults = true;
+
+                this.recognition.onstart = () => { this.lastResultIndex = 0; };
+
+                this.recognition.onresult = (event) => {
+                    if (this.isSpeaking) return;
+
+                    // Incremental Processing: Only look at new results
+                    for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        const transcript = event.results[i][0].transcript.trim();
+                        if (transcript) {
+                            this.processSequentialAlignment(transcript, event.results[i].isFinal);
+                        }
+                    }
+                };
+
+                this.recognition.onend = () => {
+                    if (this.isRecording) setTimeout(() => { 
+                        try { this.recognition.start(); } catch (e) { } 
+                    }, 400);
+                };
+            },
+
+            loadVoices() {
+                const fetch = () => { this.voices = window.speechSynthesis.getVoices(); };
+                fetch();
+                if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = fetch;
+                for (let d of [100, 500, 1000]) setTimeout(fetch, d);
+            },
+
+            setLanguage(lang) {
+                this.currentLang = lang;
+                const data = lang === 'ar' ? this.arabicData : this.englishData;
+                this.sentences = data.sort(() => Math.random() - 0.5);
+                this.currentSentenceIndex = 0;
+
+                document.getElementById('arBtn').classList.toggle('active', lang === 'ar');
+                document.getElementById('enBtn').classList.toggle('active', lang === 'en');
+                document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+
+                this.loadSentence();
+            },
+
+            loadSentence() {
+                const data = this.sentences[this.currentSentenceIndex];
+                const words = data.text.split(/\s+/);
+
+                this.currentWords = words.map((w, i) => ({
+                    text: w,
+                    syllables: data.syllables[i] || [w],
+                    status: i === 0 ? 'active' : 'pending'
+                }));
+
+                this.activeWordIndex = 0;
+                this.render();
+                this.updateProgress();
+            },
+
+            render() {
+                const container = document.getElementById('sentenceDisplay');
+                container.innerHTML = this.currentWords.map((word, wIdx) => `
+                    <div class="word-group ${word.status}" id="word-${wIdx}">
+                        <div class="word-main">${word.text}</div>
+                        <div class="syllable-container">
+                            ${word.syllables.map(syl => `<div class="syllable-chip">${syl}</div>`).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            },
+
+            // Groups similar sounding Arabic letters for more realistic coaching
+            phoneticGroups: [
+                ['ح', 'ه', 'خ'],
+                ['ط', 'ت'],
+                ['ص', 'س', 'ث'],
+                ['ظ', 'ذ', 'ز'],
+                ['ق', 'ك'],
+                ['ض', 'د'],
+                ['ع', 'ا', 'ء']
+            ],
+
+            processSequentialAlignment(transcript, isFinal) {
+                const heardWords = transcript.toLowerCase().split(/\s+/);
+                const targetWord = this.currentWords[this.activeWordIndex].text;
+                
+                // Alignment logic: We only care about the most relevant word in the current chunk
+                // Sequential progression prevents "jumping ahead"
+                let bestMatch = { score: 0, word: "" };
+
+                for (const heard of heardWords) {
+                    const result = this.calculateSimilarity(heard, targetWord);
+                    if (result.score > bestMatch.score) {
+                        bestMatch = { score: result.score, word: heard, feedback: result.feedback };
+                    }
+                }
+
+                // Dynamic Progression: High score validates immediately
+                const threshold = this.getDynamicThreshold(targetWord);
+
+                if (bestMatch.score >= threshold) {
+                    this.validateWord();
+                } else if (isFinal && bestMatch.score > 20) {
+                    // Final results only trigger error if match is decent but not enough
+                    this.triggerError(bestMatch.word, bestMatch.feedback);
+                }
+            },
+
+            getDynamicThreshold(word) {
+                const clean = this.normalize(word);
+                if (clean.length <= 3) return 85; // Short words must be precise
+                if (clean.length <= 6) return 75;
+                return 65; // Long words have more leeway
+            },
+
+            validateWord() {
+                const current = this.currentWords[this.activeWordIndex];
+                current.status = 'correct';
+                this.activeWordIndex++;
+
+                if (this.activeWordIndex < this.currentWords.length) {
+                    this.currentWords[this.activeWordIndex].status = 'active';
+                    this.setStatus("Perfect", "Continue reading...");
                 } else {
-                    break;
+                    this.handleComplete();
                 }
-            }
 
-            if (processedAny) {
-                highlightCurrent();
-                document.getElementById('status').innerHTML = '✅ Keep reading! Speed is good!';
-            } else {
-                const wordEl = document.querySelector(`[data-index="${currentIndex}"]`);
-                wordEl.classList.remove('speaking');
-                wordEl.classList.add('wrong');
-                stuckOnWrong = true;
-                document.getElementById('status').innerHTML = `❌ Read: "${paragraphWords[currentIndex]}" correctly!`;
-                document.getElementById('heard').innerText = `Say clearly: "${paragraphWords[currentIndex]}"`;
-                speakFeedback(`Read "${paragraphWords[currentIndex]}" correctly`);
-            }
-        }
+                this.render();
+                this.updateProgress();
+            },
 
-        function updateScore() {
-            document.getElementById('scoreNum').innerText = score;
-        }
+            triggerError(heard, feedback = "") {
+                const current = this.currentWords[this.activeWordIndex];
+                if (current.status === 'wrong') return;
 
-        function speakFeedback(text) {
-            if (isSpeakingFeedback) return;
-            
-            isSpeakingFeedback = true;
-            try { recognition.stop(); } catch(e) {}
-            
-            speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 0.85;
-            
-            utterance.onend = () => {
-                isSpeakingFeedback = false;
-                if (isReading) {
-                    try { recognition.start(); } catch(e) {}
-                }
-            };
-            
-            speechSynthesis.speak(utterance);
-        }
+                current.status = 'wrong';
+                this.render();
+                
+                const tip = feedback ? ` (Tip: ${feedback})` : "";
+                this.setStatus("Keep trying", `Heard "${heard}"${tip}`);
 
-        recognition.onend = () => {
-            if (isReading && !isSpeakingFeedback) {
                 setTimeout(() => {
-                    try { recognition.start(); } catch(e) {}
-                }, 150);
+                    this.hearCurrentWord();
+                    setTimeout(() => {
+                        if (current.status === 'wrong') {
+                            current.status = 'active';
+                            this.render();
+                        }
+                    }, 2000);
+                }, 600);
+            },
+
+            normalize(text) {
+                if (!text) return "";
+                if (this.currentLang === 'ar') {
+                    return text
+                        .replace(/[\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E8\u06EA-\u06ED\u0640]/g, "") // Diacritics
+                        .replace(/[أإآٱ]/g, "ا")
+                        .replace(/[ى]/g, "ي")
+                        .replace(/[ة]/g, "ه")
+                        .replace(/[ؤئ]/g, "ء")
+                        .replace(/\s+/g, "")
+                        .trim();
+                }
+                return text.toLowerCase().replace(/[^a-z0-9]/g, "").trim();
+            },
+
+            calculateSimilarity(a, b) {
+                const h = this.normalize(a);
+                const t = this.normalize(b);
+                if (h === t) return { score: 100 };
+                if (!h || !t) return { score: 0 };
+
+                const dist = this.levenshteinPhonetic(h, t);
+                const maxLen = Math.max(h.length, t.length);
+                const score = Math.max(0, Math.round((1 - dist / maxLen) * 100));
+                
+                // Phonetic Analysis for Coaching
+                let feedback = "";
+                if (score < 80 && this.currentLang === 'ar') {
+                    feedback = this.getPhoneticFeedback(h, t);
+                }
+
+                return { score, feedback };
+            },
+
+            getPhoneticFeedback(heard, target) {
+                // Check if specific problematic Arabic phonemes were confused
+                for (const group of this.phoneticGroups) {
+                    const hasHeard = group.some(char => heard.includes(char));
+                    const hasTarget = group.some(char => target.includes(char));
+                    if (hasHeard && hasTarget) {
+                        if (group.includes('ح')) return "Focus on the throat 'H' sound";
+                        if (group.includes('ع')) return "Try more emphasis on 'Ayn'";
+                        if (group.includes('ق')) return "The 'Qaf' is deeper in the throat";
+                    }
+                }
+                return "Try pronouncing more clearly";
+            },
+
+            levenshteinPhonetic(a, b) {
+                const m = Array.from({ length: b.length + 1 }, (_, i) => [i]);
+                for (let j = 1; j <= a.length; j++) m[0][j] = j;
+
+                for (let i = 1; i <= b.length; i++) {
+                    for (let j = 1; j <= a.length; j++) {
+                        let cost = 1;
+                        if (a[j - 1] === b[i - 1]) {
+                            cost = 0;
+                        } else if (this.currentLang === 'ar') {
+                            const isSimilar = this.phoneticGroups.some(g => g.includes(a[j - 1]) && g.includes(b[i - 1]));
+                            if (isSimilar) cost = 0.4; // Minor penalty for similar sounds
+                        }
+                        m[i][j] = Math.min(m[i - 1][j - 1] + cost, m[i][j - 1] + 1, m[i - 1][j] + 1);
+                    }
+                }
+                return m[b.length][a.length];
+            },
+
+            toggleRecording() {
+                if (this.isRecording) {
+                    this.isRecording = false;
+                    this.recognition.stop();
+                    document.getElementById('recordBtn').classList.remove('recording');
+                    this.setStatus("Paused", "Mic is inactive");
+                } else {
+                    this.isRecording = true;
+                    this.recognition.lang = this.currentLang === 'ar' ? 'ar-SA' : 'en-US';
+                    try { this.recognition.start(); } catch (e) { }
+                    document.getElementById('recordBtn').classList.add('recording');
+                    this.setStatus("Listening", "Read naturally...");
+                }
+            },
+
+            hearCurrentWord() {
+                if (this.isSpeaking || this.activeWordIndex >= this.currentWords.length) return;
+                const word = this.currentWords[this.activeWordIndex].text;
+                const utter = new SpeechSynthesisUtterance(word);
+                
+                const langCode = this.currentLang === 'ar' ? 'ar-SA' : 'en-US';
+                const voices = window.speechSynthesis.getVoices();
+                const voice = voices.find(v => v.lang.includes(langCode)) || voices.find(v => v.lang.startsWith(this.currentLang));
+
+                if (this.currentLang === 'ar' && !voice) {
+                    this.playCloudFallback(word);
+                    return;
+                }
+
+                if (voice) utter.voice = voice;
+                utter.lang = langCode;
+                utter.rate = this.currentLang === 'ar' ? 0.6 : 0.8; // Specialized learning speeds
+                
+                utter.onstart = () => { this.isSpeaking = true; };
+                utter.onend = () => { this.isSpeaking = false; };
+                utter.onerror = () => { this.isSpeaking = false; };
+                
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.speak(utter);
+            },
+
+            playCloudFallback(text) {
+                this.isSpeaking = true;
+                const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=${this.currentLang === 'ar' ? 'ar' : 'en'}&client=tw-ob`;
+                if (this.fallbackAudio) this.fallbackAudio.pause();
+                this.fallbackAudio = new Audio(url);
+                this.fallbackAudio.onended = () => { this.isSpeaking = false; };
+                this.fallbackAudio.play().catch(() => { this.isSpeaking = false; });
+            },
+
+            handleComplete() {
+                this.setStatus("Excellent!", "Sentence complete!");
+                document.getElementById('progressFill').style.width = '100%';
+                setTimeout(() => this.nextSentence(), 3000);
+            },
+
+            nextSentence() {
+                this.currentSentenceIndex = (this.currentSentenceIndex + 1) % this.sentences.length;
+                this.loadSentence();
+            },
+
+            updateProgress() {
+                const p = (this.activeWordIndex / this.currentWords.length) * 100;
+                document.getElementById('progressFill').style.width = `${p}%`;
+            },
+
+            setStatus(main, sub) {
+                document.getElementById('statusText').textContent = main;
+                document.getElementById('correctionDetail').textContent = sub;
             }
         };
+
+        window.addEventListener('load', () => app.init());
     </script>
 </body>
+
 </html>
