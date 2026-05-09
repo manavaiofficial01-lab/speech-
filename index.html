@@ -403,6 +403,7 @@
             sentences: [],
             currentWords: [],
             recognition: null,
+            isActuallyRecording: false, // Tracks the physical mic state
             voices: [],
             fallbackAudio: null,
             isLearningMode: true, // Slower TTS and more feedback
@@ -468,12 +469,14 @@
                 this.loadVoices();
                 this.setLanguage('ar');
 
-                // Mic Heartbeat
+                // Mic Heartbeat - Only restart if truly dead and supposed to be recording
                 setInterval(() => {
-                    if (this.isRecording && this.recognition) {
-                        try { this.recognition.start(); } catch (e) { }
+                    if (this.isRecording && !this.isActuallyRecording && !this.isSpeaking && this.recognition) {
+                        try { 
+                            this.recognition.start(); 
+                        } catch (e) { }
                     }
-                }, 2000);
+                }, 4000); 
             },
 
             setupRecognition() {
@@ -484,7 +487,10 @@
                 this.recognition.continuous = true;
                 this.recognition.interimResults = true;
 
-                this.recognition.onstart = () => { this.lastResultIndex = 0; };
+                this.recognition.onstart = () => { 
+                    this.lastResultIndex = 0; 
+                    this.isActuallyRecording = true;
+                };
 
                 this.recognition.onresult = (event) => {
                     if (this.isSpeaking) return;
@@ -499,9 +505,15 @@
                 };
 
                 this.recognition.onend = () => {
-                    if (this.isRecording) setTimeout(() => { 
-                        try { this.recognition.start(); } catch (e) { } 
-                    }, 400);
+                    this.isActuallyRecording = false;
+                    // Don't restart if we're speaking or manually paused
+                    if (this.isRecording && !this.isSpeaking) {
+                        setTimeout(() => { 
+                            if (this.isRecording && !this.isActuallyRecording) {
+                                try { this.recognition.start(); } catch (e) { } 
+                            }
+                        }, 400);
+                    }
                 };
             },
 
@@ -521,6 +533,7 @@
                 document.getElementById('arBtn').classList.toggle('active', lang === 'ar');
                 document.getElementById('enBtn').classList.toggle('active', lang === 'en');
                 document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+                document.documentElement.lang = lang;
 
                 this.loadSentence();
             },
@@ -717,6 +730,12 @@
 
             hearCurrentWord() {
                 if (this.isSpeaking || this.activeWordIndex >= this.currentWords.length) return;
+                
+                // Pause recognition during TTS
+                if (this.isRecording && this.recognition) {
+                    try { this.recognition.stop(); } catch(e) {}
+                }
+
                 const word = this.currentWords[this.activeWordIndex].text;
                 const utter = new SpeechSynthesisUtterance(word);
                 
@@ -731,11 +750,23 @@
 
                 if (voice) utter.voice = voice;
                 utter.lang = langCode;
-                utter.rate = this.currentLang === 'ar' ? 0.6 : 0.8; // Specialized learning speeds
+                utter.rate = this.currentLang === 'ar' ? 0.6 : 0.8; 
                 
-                utter.onstart = () => { this.isSpeaking = true; };
-                utter.onend = () => { this.isSpeaking = false; };
-                utter.onerror = () => { this.isSpeaking = false; };
+                utter.onstart = () => { 
+                    this.isSpeaking = true; 
+                };
+                
+                const resumeRecognition = () => {
+                    this.isSpeaking = false;
+                    if (this.isRecording && this.recognition) {
+                        setTimeout(() => {
+                            try { this.recognition.start(); } catch(e) {}
+                        }, 300);
+                    }
+                };
+
+                utter.onend = resumeRecognition;
+                utter.onerror = resumeRecognition;
                 
                 window.speechSynthesis.cancel();
                 window.speechSynthesis.speak(utter);
@@ -743,11 +774,27 @@
 
             playCloudFallback(text) {
                 this.isSpeaking = true;
+                // Pause recognition during TTS
+                if (this.isRecording && this.recognition) {
+                    try { this.recognition.stop(); } catch(e) {}
+                }
+
                 const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=${this.currentLang === 'ar' ? 'ar' : 'en'}&client=tw-ob`;
                 if (this.fallbackAudio) this.fallbackAudio.pause();
                 this.fallbackAudio = new Audio(url);
-                this.fallbackAudio.onended = () => { this.isSpeaking = false; };
-                this.fallbackAudio.play().catch(() => { this.isSpeaking = false; });
+                
+                const resumeRecognition = () => {
+                    this.isSpeaking = false;
+                    if (this.isRecording && this.recognition) {
+                        setTimeout(() => {
+                            try { this.recognition.start(); } catch(e) {}
+                        }, 300);
+                    }
+                };
+
+                this.fallbackAudio.onended = resumeRecognition;
+                this.fallbackAudio.onerror = resumeRecognition;
+                this.fallbackAudio.play().catch(resumeRecognition);
             },
 
             handleComplete() {
