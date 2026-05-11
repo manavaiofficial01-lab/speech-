@@ -48,9 +48,9 @@
 
         .container {
             width: 100%;
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
+            max-width: 100%;
+            margin: 0;
+            padding: 1rem 2rem;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
@@ -63,13 +63,14 @@
         }
 
         h1 {
-            font-size: clamp(1.8rem, 4vw, 3rem);
-            font-weight: 700;
-            letter-spacing: -1px;
-            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            letter-spacing: -2px;
+            background: linear-gradient(180deg, #fff 0%, #94a3b8 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 0.3rem;
+            margin-bottom: 0.5rem;
+            filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.1));
         }
 
         .subtitle {
@@ -114,14 +115,16 @@
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 2.5rem;
-            padding: 2.5rem;
+            padding: 1.5rem;
             box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 2rem;
+            gap: 1.5rem;
             position: relative;
             overflow: hidden;
+            width: 100%;
+            flex-grow: 1;
         }
 
         .trainer-card::before {
@@ -138,17 +141,66 @@
         .sentence-display {
             width: 100%;
             text-align: center;
-            min-height: 200px;
+            min-height: 500px;
+            max-height: 75vh;
+            overflow-y: auto;
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 3rem;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) transparent;
+        }
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) transparent;
+        }
+
+        .sentence-display::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sentence-display::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        .sentence-row {
+            display: flex;
+            flex-wrap: nowrap;
             justify-content: center;
             align-items: center;
-            gap: 1.5rem 2rem;
-            padding: 2.5rem;
-            background: rgba(0, 0, 0, 0.25);
-            border-radius: 2rem;
+            gap: 2rem 4rem;
+            padding: 2rem 3rem;
+            border-radius: 3rem;
             transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(255, 255, 255, 0.03);
+            opacity: 0.35;
+            border: 1px solid transparent;
+            overflow-x: auto;
+            width: 100%;
+            scrollbar-width: none;
+            flex-shrink: 0;
+        }
+
+        .sentence-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        .sentence-row.active {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6),
+                        inset 0 0 50px rgba(99, 102, 241, 0.1);
+            padding: 5.5rem 3rem;
+            transform: translateY(-5px);
+        }
+
+        .sentence-row.completed {
+            opacity: 0.7;
         }
 
         .word-group {
@@ -157,14 +209,23 @@
             align-items: center;
             gap: 0.6rem;
             transition: all 0.4s ease;
+            flex-shrink: 0;
         }
 
         .word-main {
             font-family: 'Amiri', serif;
-            font-size: clamp(2.4rem, 7vw, 4.5rem);
+            font-size: clamp(2.2rem, 7vw, 3.8rem);
             color: var(--text-main);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
+            white-space: nowrap;
+            letter-spacing: 1px;
+        }
+
+        .sentence-row.active .word-main {
+            font-size: clamp(4.8rem, 15vw, 10rem);
+            letter-spacing: 2px;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.1));
         }
 
         [dir="ltr"] .word-main {
@@ -180,13 +241,20 @@
 
         .syllable-chip {
             font-size: 0.85rem;
-            padding: 0.2rem 0.7rem;
-            background: rgba(255, 255, 255, 0.03);
+            padding: 0.25rem 0.8rem;
+            background: rgba(255, 255, 255, 0.04);
             border-radius: 99px;
             color: var(--text-dim);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             letter-spacing: 0.5px;
+        }
+
+        .sentence-row.active .syllable-chip {
+            font-size: 1.15rem;
+            padding: 0.45rem 1.4rem;
+            color: var(--text-main);
+            border-color: rgba(255, 255, 255, 0.15);
         }
 
         /* Interaction States */
@@ -259,11 +327,12 @@
 
         .feedback-box {
             width: 100%;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 1.8rem;
-            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 2.2rem;
+            padding: 1.8rem;
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(10px);
         }
 
         .status-text {
@@ -275,32 +344,36 @@
 
         .action-controls {
             display: flex;
-            gap: 1.8rem;
+            gap: 2.5rem;
             align-items: center;
+            padding-bottom: 1rem;
         }
 
         .btn-circle {
-            width: 65px;
-            height: 65px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.6rem;
+            font-size: 2rem;
             cursor: pointer;
             border: none;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            background: var(--card-bg);
+            background: rgba(255, 255, 255, 0.05);
             color: white;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
         }
 
         .btn-record {
-            width: 85px;
-            height: 85px;
-            background: var(--primary);
-            font-size: 2.2rem;
-            box-shadow: 0 10px 30px var(--primary-glow);
+            width: 110px;
+            height: 110px;
+            background: linear-gradient(135deg, var(--primary), #4f46e5);
+            font-size: 2.8rem;
+            box-shadow: 0 15px 45px var(--primary-glow);
+            border: 2px solid rgba(255, 255, 255, 0.2);
         }
 
         .btn-record.recording {
@@ -339,12 +412,85 @@
             transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Desktop specific tweaks */
-        @media (min-width: 1024px) {
-            .trainer-card {
-                padding: 4rem;
+        /* Mobile Optimization */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0.8rem;
+                gap: 1rem;
             }
 
+            h1 {
+                font-size: clamp(2rem, 8vw, 3rem);
+            }
+
+            .trainer-card {
+                padding: 1rem;
+                border-radius: 2rem;
+                gap: 1rem;
+            }
+
+            .sentence-display {
+                min-height: 400px;
+                padding: 1rem;
+                border-radius: 2.2rem;
+                gap: 1rem;
+            }
+
+            .sentence-row {
+                padding: 1.5rem 1rem;
+                gap: 1rem 2rem;
+            }
+
+            .sentence-row.active {
+                padding: 3.5rem 1rem;
+            }
+
+            .word-main {
+                font-size: clamp(1.8rem, 6vw, 3rem);
+            }
+
+            .sentence-row.active .word-main {
+                font-size: clamp(3.2rem, 12vw, 5.5rem);
+            }
+
+            .syllable-chip {
+                font-size: 0.75rem;
+                padding: 0.2rem 0.6rem;
+            }
+
+            .sentence-row.active .syllable-chip {
+                font-size: 0.95rem;
+                padding: 0.35rem 1rem;
+            }
+
+            .action-controls {
+                gap: 1.2rem;
+            }
+
+            .btn-circle {
+                width: 60px;
+                height: 60px;
+                font-size: 1.4rem;
+            }
+
+            .btn-record {
+                width: 90px;
+                height: 90px;
+                font-size: 2.4rem;
+            }
+
+            .feedback-box {
+                padding: 1.2rem;
+                border-radius: 1.8rem;
+            }
+
+            .status-text {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Desktop specific tweaks */
+        @media (min-width: 1024px) {
             .btn-circle:hover {
                 transform: translateY(-5px) scale(1.05);
                 background: rgba(255, 255, 255, 0.1);
@@ -401,12 +547,7 @@
             activeWordIndex: 0,
             activeSyllableIndex: 0,
             lastResultIndex: 0, // Critical for incremental processing
-            sentences: [],
-            currentWords: [],
-            recognition: null,
-            isActuallyRecording: false, // Tracks the physical mic state
-            voices: [],
-            fallbackAudio: null,
+            allSentencesWords: [], // Prepared words for all sentences
             isLearningMode: true, // Slower TTS and more feedback
 
             arabicData: [
@@ -566,7 +707,7 @@
                 }
 
                 const data = lang === 'ar' ? this.arabicData : this.englishData;
-                this.sentences = [...data].sort(() => Math.random() - 0.5);
+                this.sentences = [...data]; // No shuffling - Al-Fatiha must be in order
                 this.currentSentenceIndex = 0;
 
                 document.getElementById('arBtn').classList.toggle('active', lang === 'ar');
@@ -578,14 +719,15 @@
             },
 
             loadSentence() {
-                const data = this.sentences[this.currentSentenceIndex];
-                const words = data.text.split(/\s+/);
-
-                this.currentWords = words.map((w, i) => ({
-                    text: w,
-                    syllables: data.syllables[i] || [w],
-                    status: i === 0 ? 'active' : 'pending'
-                }));
+                // Initialize all sentences at once for the "one page" view
+                this.allSentencesWords = this.sentences.map((sentence, sIdx) => {
+                    const words = sentence.text.split(/\s+/);
+                    return words.map((w, i) => ({
+                        text: w,
+                        syllables: sentence.syllables[i] || [w],
+                        status: (sIdx === 0 && i === 0) ? 'active' : 'pending'
+                    }));
+                });
 
                 this.activeWordIndex = 0;
                 this.render();
@@ -594,14 +736,30 @@
 
             render() {
                 const container = document.getElementById('sentenceDisplay');
-                container.innerHTML = this.currentWords.map((word, wIdx) => `
-                    <div class="word-group ${word.status}" id="word-${wIdx}">
-                        <div class="word-main">${word.text}</div>
-                        <div class="syllable-container">
-                            ${word.syllables.map(syl => `<div class="syllable-chip">${syl}</div>`).join('')}
-                        </div>
+                container.innerHTML = this.allSentencesWords.map((sentenceWords, sIdx) => `
+                    <div class="sentence-row ${sIdx === this.currentSentenceIndex ? 'active' : ''} ${sIdx < this.currentSentenceIndex ? 'completed' : ''}" id="sentence-${sIdx}">
+                        ${sentenceWords.map((word, wIdx) => `
+                            <div class="word-group ${word.status}" id="word-${sIdx}-${wIdx}">
+                                <div class="word-main">${word.text}</div>
+                                <div class="syllable-container">
+                                    ${word.syllables.map(syl => `<div class="syllable-chip">${syl}</div>`).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
                     </div>
                 `).join('');
+
+                // Scroll active sentence into view if needed
+                const activeEl = document.getElementById(`sentence-${this.currentSentenceIndex}`);
+                if (activeEl && this.isRecording) {
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    
+                    // Also ensure the active word is horizontally centered within the row
+                    const activeWord = activeEl.querySelector('.word-group.active');
+                    if (activeWord) {
+                        activeWord.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                    }
+                }
             },
 
             // Groups similar sounding Arabic letters for more realistic coaching
@@ -616,10 +774,11 @@
             ],
 
             processSequentialAlignment(transcript, isFinal) {
-                if (!this.currentWords[this.activeWordIndex]) return;
+                const currentSentence = this.allSentencesWords[this.currentSentenceIndex];
+                if (!currentSentence || !currentSentence[this.activeWordIndex]) return;
 
                 const heardWords = transcript.toLowerCase().split(/\s+/);
-                const targetWord = this.currentWords[this.activeWordIndex].text;
+                const targetWord = currentSentence[this.activeWordIndex].text;
 
                 // Alignment logic: We only care about the most relevant word in the current chunk
                 // Sequential progression prevents "jumping ahead"
@@ -651,15 +810,24 @@
             },
 
             validateWord() {
-                const current = this.currentWords[this.activeWordIndex];
+                const currentSentence = this.allSentencesWords[this.currentSentenceIndex];
+                const current = currentSentence[this.activeWordIndex];
                 current.status = 'correct';
                 this.activeWordIndex++;
 
-                if (this.activeWordIndex < this.currentWords.length) {
-                    this.currentWords[this.activeWordIndex].status = 'active';
+                if (this.activeWordIndex < currentSentence.length) {
+                    currentSentence[this.activeWordIndex].status = 'active';
                     this.setStatus("Perfect", "Continue reading...");
                 } else {
-                    this.handleComplete();
+                    // Sentence finished, move to next
+                    if (this.currentSentenceIndex < this.allSentencesWords.length - 1) {
+                        this.currentSentenceIndex++;
+                        this.activeWordIndex = 0;
+                        this.allSentencesWords[this.currentSentenceIndex][0].status = 'active';
+                        this.setStatus("Excellent!", "Moving to next line...");
+                    } else {
+                        this.setStatus("Completed!", "All lines done! Maa Shaa Allah");
+                    }
                 }
 
                 this.render();
@@ -667,7 +835,8 @@
             },
 
             triggerError(heard, feedback = "") {
-                const current = this.currentWords[this.activeWordIndex];
+                const currentSentence = this.allSentencesWords[this.currentSentenceIndex];
+                const current = currentSentence[this.activeWordIndex];
                 if (current.status === 'wrong') return;
 
                 current.status = 'wrong';
@@ -775,18 +944,19 @@
             hearCurrentWord() {
                 if (this.isSpeaking) return;
 
-                const wordIndex = this.activeWordIndex < this.currentWords.length
+                const currentSentence = this.allSentencesWords[this.currentSentenceIndex];
+                const wordIndex = this.activeWordIndex < currentSentence.length
                     ? this.activeWordIndex
-                    : this.currentWords.length - 1;
+                    : currentSentence.length - 1;
 
-                if (wordIndex < 0 || !this.currentWords[wordIndex]) return;
+                if (wordIndex < 0 || !currentSentence[wordIndex]) return;
 
                 // Pause recognition during TTS
                 if (this.isRecording && this.recognition) {
                     try { this.recognition.stop(); } catch (e) { }
                 }
 
-                const word = this.currentWords[wordIndex].text;
+                const word = currentSentence[wordIndex].text;
                 const utter = new SpeechSynthesisUtterance(word);
 
                 const langCode = this.currentLang === 'ar' ? 'ar-SA' : 'en-US';
@@ -867,18 +1037,37 @@
             },
 
             handleComplete() {
-                this.setStatus("Excellent!", "Sentence complete!");
-                document.getElementById('progressFill').style.width = '100%';
-                setTimeout(() => this.nextSentence(), 3000);
+                // Not used in continuous mode, handled in validateWord
             },
 
             nextSentence() {
-                this.currentSentenceIndex = (this.currentSentenceIndex + 1) % this.sentences.length;
-                this.loadSentence();
+                if (this.currentSentenceIndex < this.allSentencesWords.length - 1) {
+                    // Mark current sentence as completed
+                    this.allSentencesWords[this.currentSentenceIndex].forEach(w => {
+                        if (w.status !== 'correct') w.status = 'pending';
+                    });
+                    
+                    this.currentSentenceIndex++;
+                    this.activeWordIndex = 0;
+                    this.allSentencesWords[this.currentSentenceIndex][0].status = 'active';
+                    this.render();
+                    this.updateProgress();
+                } else {
+                    // Loop back to start
+                    this.currentSentenceIndex = 0;
+                    this.loadSentence();
+                }
             },
 
             updateProgress() {
-                const p = (this.activeWordIndex / this.currentWords.length) * 100;
+                const totalWords = this.allSentencesWords.reduce((acc, s) => acc + s.length, 0);
+                let completedCount = 0;
+                for (let i = 0; i < this.currentSentenceIndex; i++) {
+                    completedCount += this.allSentencesWords[i].length;
+                }
+                completedCount += this.activeWordIndex;
+
+                const p = (completedCount / totalWords) * 100;
                 document.getElementById('progressFill').style.width = `${p}%`;
             },
 
