@@ -11,6 +11,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Outfit:wght@300;400;600;700&family=Readex+Pro:wght@300;400;600;700&display=swap"
         rel="stylesheet">
+    <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
     <style>
         :root {
             --primary: #6366f1;
@@ -409,58 +410,76 @@
             isLearningMode: true, // Slower TTS and more feedback
 
             arabicData: [
-                { text: "مَرْحَبًا", syllables: [["mar", "ha", "ba"]] },
-                { text: "سَلَامٌ", syllables: [["sa", "laam"]] },
-                { text: "نَعَمْ", syllables: [["na", "am"]] },
-                { text: "لَا", syllables: [["laa"]] },
-                { text: "مَاءٌ", syllables: [["maa"]] },
-                { text: "بَيْتٌ", syllables: [["bayt"]] },
-                { text: "قَمَرٌ", syllables: [["qa", "mar"]] },
-                { text: "شَمْسٌ", syllables: [["shams"]] },
-                { text: "كِتَابٌ", syllables: [["ki", "taab"]] },
-                { text: "بَابٌ", syllables: [["baab"]] }
+                {
+                    text: "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ",
+                    syllables: [["Bis", "mi"], ["Al", "lah"], ["Ar", "Rah", "man"], ["Ar", "Ra", "heem"]]
+                },
+                {
+                    text: "ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَـٰلَمِينَ",
+                    syllables: [["Al", "ham", "du"], ["Lil", "lah"], ["Rab", "bi"], ["Al", "aa", "la", "meen"]]
+                },
+                {
+                    text: "ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ",
+                    syllables: [["Ar", "Rah", "man"], ["Ar", "Ra", "heem"]]
+                },
+                {
+                    text: "مَـٰلِكِ يَوْمِ ٱلدِّينِ",
+                    syllables: [["Maa", "li", "ki"], ["Yaw", "mid"], ["Deen"]]
+                },
+                {
+                    text: "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ",
+                    syllables: [["Iy", "yaa", "ka"], ["Na", "bu", "du"], ["Wa", "iy", "yaa", "ka"], ["Nas", "ta", "een"]]
+                },
+                {
+                    text: "ٱهْدِنَا ٱلصِّرَٰطَ ٱلْمُسْتَقِيمَ",
+                    syllables: [["Ih", "di", "naa"], ["Sir", "raa", "tal"], ["Mus", "ta", "qeem"]]
+                },
+                {
+                    text: "صِرَٰطَ ٱلَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ ٱلْمَغْضُوبِ عَلَيْهِمْ وَلَا ٱلضَّآلِّينَ",
+                    syllables: [["Si", "raal"], ["La", "dhee", "na"], ["An", "am", "ta"], ["A", "lay", "him"], ["Ghay", "ril"], ["Magh", "doo", "bi"], ["A", "lay", "him"], ["Wa", "lad"], ["Daal", "leen"]]
+                }
             ],
 
             englishData: [
-                { 
-                    text: "The baby is playing happily", 
-                    syllables: [["The"], ["ba", "by"], ["is"], ["play", "ing"], ["hap", "pi", "ly"]] 
+                {
+                    text: "The baby is playing happily",
+                    syllables: [["The"], ["ba", "by"], ["is"], ["play", "ing"], ["hap", "pi", "ly"]]
                 },
-                { 
-                    text: "My brother likes football", 
-                    syllables: [["My"], ["bro", "ther"], ["likes"], ["foot", "ball"]] 
+                {
+                    text: "My brother likes football",
+                    syllables: [["My"], ["bro", "ther"], ["likes"], ["foot", "ball"]]
                 },
-                { 
-                    text: "She cooks delicious food", 
-                    syllables: [["She"], ["cooks"], ["de", "li", "cious"], ["food"]] 
+                {
+                    text: "She cooks delicious food",
+                    syllables: [["She"], ["cooks"], ["de", "li", "cious"], ["food"]]
                 },
-                { 
-                    text: "The birds are flying high", 
-                    syllables: [["The"], ["birds"], ["are"], ["fly", "ing"], ["high"]] 
+                {
+                    text: "The birds are flying high",
+                    syllables: [["The"], ["birds"], ["are"], ["fly", "ing"], ["high"]]
                 },
-                { 
-                    text: "We are learning together", 
-                    syllables: [["We"], ["are"], ["learn", "ing"], ["to", "ge", "ther"]] 
+                {
+                    text: "We are learning together",
+                    syllables: [["We"], ["are"], ["learn", "ing"], ["to", "ge", "ther"]]
                 },
-                { 
-                    text: "The doctor helps people", 
-                    syllables: [["The"], ["doc", "tor"], ["helps"], ["peo", "ple"]] 
+                {
+                    text: "The doctor helps people",
+                    syllables: [["The"], ["doc", "tor"], ["helps"], ["peo", "ple"]]
                 },
-                { 
-                    text: "I wake up early every day", 
-                    syllables: [["I"], ["wake"], ["up"], ["ear", "ly"], ["ev", "ery"], ["day"]] 
+                {
+                    text: "I wake up early every day",
+                    syllables: [["I"], ["wake"], ["up"], ["ear", "ly"], ["ev", "ery"], ["day"]]
                 },
-                { 
-                    text: "The students write carefully", 
-                    syllables: [["The"], ["stu", "dents"], ["write"], ["care", "ful", "ly"]] 
+                {
+                    text: "The students write carefully",
+                    syllables: [["The"], ["stu", "dents"], ["write"], ["care", "ful", "ly"]]
                 },
-                { 
-                    text: "My mother makes tea", 
-                    syllables: [["My"], ["mo", "ther"], ["makes"], ["tea"]] 
+                {
+                    text: "My mother makes tea",
+                    syllables: [["My"], ["mo", "ther"], ["makes"], ["tea"]]
                 },
-                { 
-                    text: "The bus arrives on time", 
-                    syllables: [["The"], ["bus"], ["ar", "rives"], ["on"], ["time"]] 
+                {
+                    text: "The bus arrives on time",
+                    syllables: [["The"], ["bus"], ["ar", "rives"], ["on"], ["time"]]
                 }
             ],
 
@@ -472,11 +491,11 @@
                 // Mic Heartbeat - Only restart if truly dead and supposed to be recording
                 setInterval(() => {
                     if (this.isRecording && !this.isActuallyRecording && !this.isSpeaking && this.recognition) {
-                        try { 
-                            this.recognition.start(); 
+                        try {
+                            this.recognition.start();
                         } catch (e) { }
                     }
-                }, 4000); 
+                }, 4000);
             },
 
             setupRecognition() {
@@ -486,10 +505,20 @@
                 this.recognition = new SpeechRecognition();
                 this.recognition.continuous = true;
                 this.recognition.interimResults = true;
+                this.recognition.lang = this.currentLang === 'ar' ? 'ar-SA' : 'en-US';
 
-                this.recognition.onstart = () => { 
-                    this.lastResultIndex = 0; 
+                this.recognition.onstart = () => {
+                    this.lastResultIndex = 0;
                     this.isActuallyRecording = true;
+                };
+
+                this.recognition.onerror = (event) => {
+                    console.error('Speech recognition error:', event.error);
+                    if (event.error === 'not-allowed') {
+                        this.isRecording = false;
+                        document.getElementById('recordBtn').classList.remove('recording');
+                        this.setStatus("Permission Denied", "Check mic settings");
+                    }
                 };
 
                 this.recognition.onresult = (event) => {
@@ -508,9 +537,9 @@
                     this.isActuallyRecording = false;
                     // Don't restart if we're speaking or manually paused
                     if (this.isRecording && !this.isSpeaking) {
-                        setTimeout(() => { 
+                        setTimeout(() => {
                             if (this.isRecording && !this.isActuallyRecording) {
-                                try { this.recognition.start(); } catch (e) { } 
+                                try { this.recognition.start(); } catch (e) { }
                             }
                         }, 400);
                     }
@@ -525,9 +554,19 @@
             },
 
             setLanguage(lang) {
+                const langChanged = this.currentLang !== lang;
                 this.currentLang = lang;
+
+                if (this.recognition) {
+                    this.recognition.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
+                    // If language changed while recording, restart to apply new lang
+                    if (langChanged && this.isRecording && this.isActuallyRecording) {
+                        try { this.recognition.stop(); } catch (e) { }
+                    }
+                }
+
                 const data = lang === 'ar' ? this.arabicData : this.englishData;
-                this.sentences = data.sort(() => Math.random() - 0.5);
+                this.sentences = [...data].sort(() => Math.random() - 0.5);
                 this.currentSentenceIndex = 0;
 
                 document.getElementById('arBtn').classList.toggle('active', lang === 'ar');
@@ -577,9 +616,11 @@
             ],
 
             processSequentialAlignment(transcript, isFinal) {
+                if (!this.currentWords[this.activeWordIndex]) return;
+
                 const heardWords = transcript.toLowerCase().split(/\s+/);
                 const targetWord = this.currentWords[this.activeWordIndex].text;
-                
+
                 // Alignment logic: We only care about the most relevant word in the current chunk
                 // Sequential progression prevents "jumping ahead"
                 let bestMatch = { score: 0, word: "" };
@@ -631,7 +672,7 @@
 
                 current.status = 'wrong';
                 this.render();
-                
+
                 const tip = feedback ? ` (Tip: ${feedback})` : "";
                 this.setStatus("Keep trying", `Heard "${heard}"${tip}`);
 
@@ -649,14 +690,17 @@
             normalize(text) {
                 if (!text) return "";
                 if (this.currentLang === 'ar') {
-                    return text
+                    let clean = text
                         .replace(/[\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E8\u06EA-\u06ED\u0640]/g, "") // Diacritics
                         .replace(/[أإآٱ]/g, "ا")
                         .replace(/[ى]/g, "ي")
                         .replace(/[ة]/g, "ه")
                         .replace(/[ؤئ]/g, "ء")
+                        .replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d)) // Convert Arabic numerals to 0-9
+                        .replace(/[.,!?;:()]/g, "")
                         .replace(/\s+/g, "")
                         .trim();
+                    return clean;
                 }
                 return text.toLowerCase().replace(/[^a-z0-9]/g, "").trim();
             },
@@ -670,7 +714,7 @@
                 const dist = this.levenshteinPhonetic(h, t);
                 const maxLen = Math.max(h.length, t.length);
                 const score = Math.max(0, Math.round((1 - dist / maxLen) * 100));
-                
+
                 // Phonetic Analysis for Coaching
                 let feedback = "";
                 if (score < 80 && this.currentLang === 'ar') {
@@ -729,19 +773,44 @@
             },
 
             hearCurrentWord() {
-                if (this.isSpeaking || this.activeWordIndex >= this.currentWords.length) return;
-                
+                if (this.isSpeaking) return;
+
+                const wordIndex = this.activeWordIndex < this.currentWords.length
+                    ? this.activeWordIndex
+                    : this.currentWords.length - 1;
+
+                if (wordIndex < 0 || !this.currentWords[wordIndex]) return;
+
                 // Pause recognition during TTS
                 if (this.isRecording && this.recognition) {
-                    try { this.recognition.stop(); } catch(e) {}
+                    try { this.recognition.stop(); } catch (e) { }
                 }
 
-                const word = this.currentWords[this.activeWordIndex].text;
+                const word = this.currentWords[wordIndex].text;
                 const utter = new SpeechSynthesisUtterance(word);
-                
+
                 const langCode = this.currentLang === 'ar' ? 'ar-SA' : 'en-US';
                 const voices = window.speechSynthesis.getVoices();
-                const voice = voices.find(v => v.lang.includes(langCode)) || voices.find(v => v.lang.startsWith(this.currentLang));
+
+                // Better voice matching: prioritize exact langCode, then language start
+                const voice = voices.find(v => v.lang === langCode) ||
+                    voices.find(v => v.lang.includes(langCode)) ||
+                    voices.find(v => v.lang.startsWith(this.currentLang));
+
+                // Primary Fallback: ResponsiveVoice (Excellent for Arabic)
+                if (this.currentLang === 'ar' && window.responsiveVoice && window.responsiveVoice.voiceSupport()) {
+                    this.isSpeaking = true;
+                    window.responsiveVoice.speak(word, "Arabic Male", {
+                        rate: 0.85,
+                        onend: () => {
+                            this.isSpeaking = false;
+                            if (this.isRecording && this.recognition) {
+                                try { this.recognition.start(); } catch (e) { }
+                            }
+                        }
+                    });
+                    return;
+                }
 
                 if (this.currentLang === 'ar' && !voice) {
                     this.playCloudFallback(word);
@@ -750,24 +819,24 @@
 
                 if (voice) utter.voice = voice;
                 utter.lang = langCode;
-                utter.rate = this.currentLang === 'ar' ? 0.6 : 0.8; 
-                
-                utter.onstart = () => { 
-                    this.isSpeaking = true; 
+                utter.rate = this.currentLang === 'ar' ? 0.6 : 0.8;
+
+                utter.onstart = () => {
+                    this.isSpeaking = true;
                 };
-                
+
                 const resumeRecognition = () => {
                     this.isSpeaking = false;
                     if (this.isRecording && this.recognition) {
                         setTimeout(() => {
-                            try { this.recognition.start(); } catch(e) {}
+                            try { this.recognition.start(); } catch (e) { }
                         }, 300);
                     }
                 };
 
                 utter.onend = resumeRecognition;
                 utter.onerror = resumeRecognition;
-                
+
                 window.speechSynthesis.cancel();
                 window.speechSynthesis.speak(utter);
             },
@@ -776,18 +845,18 @@
                 this.isSpeaking = true;
                 // Pause recognition during TTS
                 if (this.isRecording && this.recognition) {
-                    try { this.recognition.stop(); } catch(e) {}
+                    try { this.recognition.stop(); } catch (e) { }
                 }
 
                 const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=${this.currentLang === 'ar' ? 'ar' : 'en'}&client=tw-ob`;
                 if (this.fallbackAudio) this.fallbackAudio.pause();
                 this.fallbackAudio = new Audio(url);
-                
+
                 const resumeRecognition = () => {
                     this.isSpeaking = false;
                     if (this.isRecording && this.recognition) {
                         setTimeout(() => {
-                            try { this.recognition.start(); } catch(e) {}
+                            try { this.recognition.start(); } catch (e) { }
                         }, 300);
                     }
                 };
