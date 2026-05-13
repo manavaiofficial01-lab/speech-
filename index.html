@@ -155,9 +155,6 @@
             scrollbar-width: thin;
             scrollbar-color: var(--primary) transparent;
         }
-            scrollbar-width: thin;
-            scrollbar-color: var(--primary) transparent;
-        }
 
         .sentence-display::-webkit-scrollbar {
             width: 6px;
@@ -170,23 +167,17 @@
 
         .sentence-row {
             display: flex;
-            flex-wrap: nowrap;
+            flex-wrap: wrap; /* Perfectly wraps all words so none go off-screen */
             justify-content: center;
             align-items: center;
-            gap: 2rem 4rem;
-            padding: 2rem 3rem;
+            gap: 1.8rem 2.5rem;
+            padding: 2rem 2.5rem;
             border-radius: 3rem;
             transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             opacity: 0.35;
             border: 1px solid transparent;
-            overflow-x: auto;
             width: 100%;
-            scrollbar-width: none;
             flex-shrink: 0;
-        }
-
-        .sentence-row::-webkit-scrollbar {
-            display: none;
         }
 
         .sentence-row.active {
@@ -195,7 +186,7 @@
             border-color: rgba(99, 102, 241, 0.3);
             box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6),
                         inset 0 0 50px rgba(99, 102, 241, 0.1);
-            padding: 5.5rem 3rem;
+            padding: 3.5rem 2.5rem;
             transform: translateY(-5px);
         }
 
@@ -214,7 +205,7 @@
 
         .word-main {
             font-family: 'Amiri', serif;
-            font-size: clamp(2.2rem, 7vw, 3.8rem);
+            font-size: clamp(2rem, 6vw, 3.5rem);
             color: var(--text-main);
             transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
@@ -223,7 +214,7 @@
         }
 
         .sentence-row.active .word-main {
-            font-size: clamp(4.8rem, 15vw, 10rem);
+            font-size: clamp(3.5rem, 11vw, 7.5rem); /* Scaled slightly down to keep multiple words in the active sentence nicely balanced and wrapped on any screen size */
             letter-spacing: 2px;
             filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.1));
         }
@@ -237,6 +228,8 @@
             display: flex;
             gap: 0.4rem;
             direction: ltr;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .syllable-chip {
@@ -415,42 +408,45 @@
         /* Mobile Optimization */
         @media (max-width: 768px) {
             .container {
-                padding: 0.8rem;
-                gap: 1rem;
+                padding: 0.6rem;
+                gap: 0.8rem;
             }
 
             h1 {
-                font-size: clamp(2rem, 8vw, 3rem);
+                font-size: clamp(1.8rem, 7vw, 2.6rem);
             }
 
             .trainer-card {
-                padding: 1rem;
-                border-radius: 2rem;
+                padding: 0.8rem;
+                border-radius: 1.8rem;
                 gap: 1rem;
             }
 
             .sentence-display {
-                min-height: 400px;
-                padding: 1rem;
-                border-radius: 2.2rem;
+                min-height: 380px;
+                padding: 1.2rem 0.6rem;
+                border-radius: 2rem;
                 gap: 1rem;
             }
 
             .sentence-row {
-                padding: 1.5rem 1rem;
-                gap: 1rem 2rem;
+                padding: 1.2rem 0.6rem;
+                gap: 1rem 1.4rem;
+                flex-wrap: wrap; /* Guarantees mobile compatibility and visual perfection */
+                justify-content: center;
             }
 
             .sentence-row.active {
-                padding: 3.5rem 1rem;
+                padding: 2.2rem 0.6rem;
+                border-radius: 2rem;
             }
 
             .word-main {
-                font-size: clamp(1.8rem, 6vw, 3rem);
+                font-size: clamp(1.6rem, 5.5vw, 2.6rem);
             }
 
             .sentence-row.active .word-main {
-                font-size: clamp(3.2rem, 12vw, 5.5rem);
+                font-size: clamp(2.4rem, 8.5vw, 4rem);
             }
 
             .syllable-chip {
@@ -468,20 +464,20 @@
             }
 
             .btn-circle {
-                width: 60px;
-                height: 60px;
-                font-size: 1.4rem;
+                width: 55px;
+                height: 55px;
+                font-size: 1.3rem;
             }
 
             .btn-record {
-                width: 90px;
-                height: 90px;
-                font-size: 2.4rem;
+                width: 82px;
+                height: 82px;
+                font-size: 2.2rem;
             }
 
             .feedback-box {
                 padding: 1.2rem;
-                border-radius: 1.8rem;
+                border-radius: 1.6rem;
             }
 
             .status-text {
@@ -547,6 +543,8 @@
             activeWordIndex: 0,
             activeSyllableIndex: 0,
             lastResultIndex: 0, // Critical for incremental processing
+            currentResultIndex: 0,
+            lastMatchedHeardWordIndex: 0,
             allSentencesWords: [], // Prepared words for all sentences
             isLearningMode: true, // Slower TTS and more feedback
 
@@ -650,6 +648,8 @@
 
                 this.recognition.onstart = () => {
                     this.lastResultIndex = 0;
+                    this.currentResultIndex = 0;
+                    this.lastMatchedHeardWordIndex = 0;
                     this.isActuallyRecording = true;
                 };
 
@@ -667,6 +667,10 @@
 
                     // Incremental Processing: Only look at new results
                     for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        if (i > this.currentResultIndex) {
+                            this.currentResultIndex = i;
+                            this.lastMatchedHeardWordIndex = 0;
+                        }
                         const transcript = event.results[i][0].transcript.trim();
                         if (transcript) {
                             this.processSequentialAlignment(transcript, event.results[i].isFinal);
@@ -782,12 +786,16 @@
 
                 // Alignment logic: We only care about the most relevant word in the current chunk
                 // Sequential progression prevents "jumping ahead"
-                let bestMatch = { score: 0, word: "" };
+                let bestMatch = { score: 0, word: "", index: -1 };
 
-                for (const heard of heardWords) {
+                // Strict sequential pointer to guarantee consumed words are never scanned again
+                const startIndex = this.lastMatchedHeardWordIndex || 0;
+
+                for (let idx = startIndex; idx < heardWords.length; idx++) {
+                    const heard = heardWords[idx];
                     const result = this.calculateSimilarity(heard, targetWord);
                     if (result.score > bestMatch.score) {
-                        bestMatch = { score: result.score, word: heard, feedback: result.feedback };
+                        bestMatch = { score: result.score, word: heard, feedback: result.feedback, index: idx };
                     }
                 }
 
@@ -795,6 +803,7 @@
                 const threshold = this.getDynamicThreshold(targetWord);
 
                 if (bestMatch.score >= threshold) {
+                    this.lastMatchedHeardWordIndex = bestMatch.index + 1;
                     this.validateWord();
                 } else if (isFinal && bestMatch.score > 20) {
                     // Final results only trigger error if match is decent but not enough
